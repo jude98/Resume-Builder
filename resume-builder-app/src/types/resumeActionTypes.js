@@ -1,0 +1,1 @@
+export const SAVE_NEW_RESUME = "SAVE NEW RESUME";
