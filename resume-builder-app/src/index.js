@@ -8,7 +8,10 @@ import { createStore } from "redux";
 import resume from "./reducers/ResumeReducer";
 import { Provider } from "react-redux";
 
-const store = createStore(resume);
+const store = createStore(
+  resume,
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
+);
 
 ReactDOM.render(
   <Provider store={store}>

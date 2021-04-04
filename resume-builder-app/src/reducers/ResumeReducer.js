@@ -1,14 +1,17 @@
 import { SAVE_NEW_RESUME } from "../types/resumeActionTypes";
 
 const initialState = {
-  resumeData: [],
+  resumevalues: [],
   currentView: "",
 };
 
 const resumeReducer = (state = initialState, action) => {
   switch (action.type) {
     case SAVE_NEW_RESUME: {
-      return state;
+      return {
+        ...state,
+        resumevalues: action.payload,
+      };
     }
     default: {
       return state;
