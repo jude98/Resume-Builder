@@ -153,7 +153,6 @@ const CreateResume = (props) => {
     e.preventDefault();
     const { id, value, name } = e.target;
     if (index >= 0) {
-      console.log(index);
       const { education } = resumeData;
       const updatedEducation = education.map((each, i) => {
         if (i === index) {
