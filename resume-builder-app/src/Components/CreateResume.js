@@ -6,12 +6,24 @@ import { saveNewResume } from "../actions/ResumeActions";
 import ResumeTemplate from "./Resume/ResumeTemplate";
 import styled from "styled-components";
 
-const ToastStyled = styled(Toast)`
+const ToastStyledError = styled(Toast)`
+  font-size: 20px;
   position: absolute;
   top: 10vh;
   left: 50%;
   height: 10vh;
   background-color: #ff0000;
+  color: #ffffff;
+  text-align: center;
+`;
+
+const ToastStyledSuccess = styled(Toast)`
+  font-size: 20px;
+  position: absolute;
+  top: 10vh;
+  left: 50%;
+  height: 10vh;
+  background-color: green;
   color: #ffffff;
   text-align: center;
 `;
@@ -51,7 +63,8 @@ const CreateResume = (props) => {
     experience: true,
     skills: true,
   });
-  const [viewError, setViewError] = useState(false);
+  const [resumeSuccess, setResumeSuccess] = useState(false);
+  const [resumeError, setResumeError] = useState(false);
   const [viewType, setViewType] = useState("EDIT_VIEW");
 
   useEffect(() => {
@@ -115,13 +128,17 @@ const CreateResume = (props) => {
     const { validated, validatedFields } = validateData();
     if (!validated) {
       disptach(saveNewResume(resumeData));
+      setResumeSuccess(true);
       // if (!actionSelected) {
       //   setResumeData({ ...formInitialData, education: [], experience: [] });
       //   setCurrentExperience([]);
       //   setCurrentEducation([]);
       //   setCurrentSkills([]);
       // }
-    } else setValidFields({ ...validFields, ...validatedFields });
+    } else {
+      setResumeError(true);
+      setValidFields({ ...validFields, ...validatedFields });
+    }
   };
 
   const onChangeField = (e) => {
@@ -223,25 +240,49 @@ const CreateResume = (props) => {
     const { validated, validatedFields } = validateData();
     if (!validated) {
       disptach(saveNewResume(resumeData));
+      setResumeSuccess(true);
       setViewType("RESUME_VIEW");
+      if (
+        props.changeTableLink &&
+        typeof props.changeTableLink === "function"
+      ) {
+        props.changeTableLink(true);
+      }
     } else {
       setValidFields({ ...validFields, ...validatedFields });
-      setViewError(true);
+      setResumeError(true);
     }
+  };
+
+  const onClickEdit = () => {
+    if (props.changeTableLink && typeof props.changeTableLink === "function") {
+      props.changeTableLink(false);
+    }
+    setViewType("EDIT_VIEW");
   };
 
   return (
     <>
-      <ToastStyled
-        onClose={() => setViewError(false)}
-        show={viewError}
+      <ToastStyledError
+        onClose={() => setResumeError(false)}
+        show={resumeError}
         delay={2000}
         autohide
       >
         <Toast.Body style={{ padding: "20px" }}>
           Fill all the fields in Resume
         </Toast.Body>
-      </ToastStyled>
+      </ToastStyledError>
+      <ToastStyledSuccess
+        onClose={() => setResumeSuccess(false)}
+        show={resumeSuccess}
+        delay={2000}
+        autohide
+      >
+        <Toast.Body style={{ padding: "20px" }}>
+          Resume Saved Successfully
+        </Toast.Body>
+      </ToastStyledSuccess>
       {viewType === "EDIT_VIEW" && (
         <Row>
           <Col md={6}>
@@ -283,7 +324,8 @@ const CreateResume = (props) => {
               <Button
                 variant="primary"
                 style={{ float: "right", margin: "20px" }}
-                onClick={() => setViewType("EDIT_VIEW")}
+                onClick={onClickEdit}
+                // onClick={() => setViewType("EDIT_VIEW")}
               >
                 EDIT RESUME
               </Button>

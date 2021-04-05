@@ -33,6 +33,7 @@ const ResumeTable = () => {
   const allResumes = useSelector((state) => state.allResumes);
   const [actionSelected, setActionSelected] = useState("TABLE");
   const [currentResume, setCurrentResume] = useState({});
+  const [edit, setEdit] = useState(false);
 
   const onClickEdit = (resume) => {
     setCurrentResume(resume);
@@ -44,16 +45,22 @@ const ResumeTable = () => {
     setActionSelected("VIEW");
   };
 
+  const changeTableLink = (value) => {
+    setEdit(value);
+  };
   return (
     <>
       {actionSelected === "EDIT" && (
         <>
-          <ButtonStyled style={{ marginBottom: "-40px" }}>
-            <Button variant="link" onClick={() => setActionSelected("TABLE")}>
-              Click to go to table view
-            </Button>
-          </ButtonStyled>
+          {!edit && (
+            <ButtonStyled style={{ marginBottom: "-40px" }}>
+              <Button variant="link" onClick={() => setActionSelected("TABLE")}>
+                Click to go to table view
+              </Button>
+            </ButtonStyled>
+          )}
           <CreateResume
+            changeTableLink={changeTableLink}
             currentResume={currentResume}
             actionSelected={actionSelected}
           />
