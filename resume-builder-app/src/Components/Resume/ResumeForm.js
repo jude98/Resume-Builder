@@ -86,6 +86,7 @@ const ResumeForm = (props) => {
               <InputLabelRequired>Name</InputLabelRequired>
             </Form.Label>
             <Form.Control
+              value={resumeData.name || ""}
               type="text"
               placeholder="Enter Full Name"
               onChange={onChangeField}
@@ -102,6 +103,7 @@ const ResumeForm = (props) => {
               <InputLabelRequired>Email</InputLabelRequired>
             </Form.Label>
             <Form.Control
+              value={resumeData.email || ""}
               type="email"
               placeholder="Enter Email id"
               onChange={onChangeField}
@@ -118,6 +120,7 @@ const ResumeForm = (props) => {
               <InputLabelRequired>Phone</InputLabelRequired>
             </Form.Label>
             <Form.Control
+              value={resumeData.phone || ""}
               type="text"
               placeholder="Enter Phone Number"
               onChange={onChangeField}
@@ -134,9 +137,22 @@ const ResumeForm = (props) => {
               <InputLabel>Address</InputLabel>
             </Form.Label>
             <Form.Control
+              value={resumeData.address || ""}
               type="text"
               as="textarea"
               placeholder="Enter Address"
+              onChange={onChangeField}
+            />
+          </Form.Group>
+          <Form.Group controlId="objective" as={Col} md={12}>
+            <Form.Label>
+              <InputLabel>Objective</InputLabel>
+            </Form.Label>
+            <Form.Control
+              value={resumeData.objective || ""}
+              type="text"
+              as="textarea"
+              placeholder="Enter Objective"
               onChange={onChangeField}
             />
           </Form.Group>
@@ -349,6 +365,17 @@ const ResumeForm = (props) => {
                 <ErrorMsg>Please enter your skills</ErrorMsg>
               </Error>
             )}
+          </Form.Group>
+          <Form.Group controlId="links" as={Col} md={12}>
+            <Form.Label>
+              <InputLabel>Project Links</InputLabel>
+            </Form.Label>
+            <Form.Control
+              value={resumeData.links || ""}
+              type="text"
+              placeholder="Enter comma separated links to showcase your skills(eg: github, stackoverflow)"
+              onChange={onChangeField}
+            />
           </Form.Group>
         </Form.Row>
       </Form>

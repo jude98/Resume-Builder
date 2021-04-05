@@ -1,16 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import ResumeForm from "./Resume/ResumeForm";
+import { Row, Col, Button, Toast } from "react-bootstrap";
 import { saveNewResume } from "../actions/ResumeActions";
+import ResumeTemplate from "./Resume/ResumeTemplate";
+import styled from "styled-components";
+
+const ToastStyled = styled(Toast)`
+  position: absolute;
+  top: 10vh;
+  left: 50%;
+  height: 10vh;
+  background-color: #ff0000;
+  color: #ffffff;
+  text-align: center;
+`;
 
 const formInitialData = {
   name: "",
   email: "",
   address: "",
   phone: "",
+  objective: "",
   education: [],
   experience: [],
   skills: [],
+  links: "",
 };
 
 const skillsOptions = [
@@ -20,8 +35,9 @@ const skillsOptions = [
   { value: "Java", label: "Java" },
 ];
 
-const CreateResume = () => {
-  const resumeValues = useSelector((state) => state.resumeValues);
+const CreateResume = (props) => {
+  const allResumes = useSelector((state) => state.allResumes);
+  const { actionSelected, currentResume } = props || {};
   const disptach = useDispatch();
   const [resumeData, setResumeData] = useState(formInitialData);
   const [currentSkills, setCurrentSkills] = useState([]);
@@ -35,6 +51,27 @@ const CreateResume = () => {
     experience: true,
     skills: true,
   });
+  const [viewError, setViewError] = useState(false);
+  const [viewType, setViewType] = useState("EDIT_VIEW");
+
+  useEffect(() => {
+    if (actionSelected && actionSelected === "EDIT") {
+      // setResumeData({ ...formInitialData, education: [], experience: [] })
+      setResumeData(currentResume);
+      const skills = currentResume.skills.map((skill) => ({
+        value: skill,
+        label: skill,
+      }));
+      setCurrentSkills(skills);
+    } else {
+      setResumeData({
+        ...formInitialData,
+        education: [],
+        experience: [],
+        id: allResumes.length + 1,
+      });
+    }
+  }, [actionSelected, currentResume]);
 
   const handleSkillsAdd = (skills) => {
     setCurrentSkills(skills);
@@ -55,20 +92,36 @@ const CreateResume = () => {
     setValidFields({ ...validFields, skills: true });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const validateData = () => {
     let validated = false;
     let validatedFields = {};
     Object.entries(resumeData).forEach(([key, value]) => {
       if (!value || (Array.isArray(value) && !value.length)) {
-        console.log(key, value);
-        validatedFields = { ...validatedFields, [key]: false };
-        validated = true;
+        if (key !== "objective" && key !== "address" && key !== "links") {
+          validatedFields = { ...validatedFields, [key]: false };
+          validated = true;
+        }
       }
     });
-    if (!validated) disptach(saveNewResume(resumeData));
-    else setValidFields({ ...validFields, ...validatedFields });
+    return {
+      validated,
+      validatedFields,
+    };
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const { validated, validatedFields } = validateData();
+    if (!validated) {
+      disptach(saveNewResume(resumeData));
+      // if (!actionSelected) {
+      //   setResumeData({ ...formInitialData, education: [], experience: [] });
+      //   setCurrentExperience([]);
+      //   setCurrentEducation([]);
+      //   setCurrentSkills([]);
+      // }
+    } else setValidFields({ ...validFields, ...validatedFields });
   };
 
   const onChangeField = (e) => {
@@ -103,7 +156,6 @@ const CreateResume = () => {
 
   const onAddEducation = () => {
     const { education } = resumeData;
-    console.log();
     if (
       !currentEducation.institution ||
       !currentEducation.degree ||
@@ -167,25 +219,80 @@ const CreateResume = () => {
     setResumeData({ ...resumeData, experience });
   };
 
+  const onClickView = () => {
+    const { validated, validatedFields } = validateData();
+    if (!validated) {
+      disptach(saveNewResume(resumeData));
+      setViewType("RESUME_VIEW");
+    } else {
+      setValidFields({ ...validFields, ...validatedFields });
+      setViewError(true);
+    }
+  };
+
   return (
-    <ResumeForm
-      resumeData={resumeData}
-      currentSkills={currentSkills}
-      skillsOptions={skillsOptions}
-      currentEducation={currentEducation}
-      currentExperience={currentExperience}
-      validFields={validFields}
-      handleSkillsAdd={handleSkillsAdd}
-      onCreateOption={onCreateOption}
-      handleSubmit={handleSubmit}
-      onChangeField={onChangeField}
-      onChangeEducation={onChangeEducation}
-      onAddEducation={onAddEducation}
-      onRemoveEducation={onRemoveEducation}
-      onChangeExperience={onChangeExperience}
-      onAddExperience={onAddExperience}
-      onRemoveExperience={onRemoveExperience}
-    />
+    <>
+      <ToastStyled
+        onClose={() => setViewError(false)}
+        show={viewError}
+        delay={2000}
+        autohide
+      >
+        <Toast.Body style={{ padding: "20px" }}>
+          Fill all the fields in Resume
+        </Toast.Body>
+      </ToastStyled>
+      {viewType === "EDIT_VIEW" && (
+        <Row>
+          <Col md={6}>
+            <ResumeForm
+              resumeData={resumeData}
+              currentSkills={currentSkills}
+              skillsOptions={skillsOptions}
+              currentEducation={currentEducation}
+              currentExperience={currentExperience}
+              validFields={validFields}
+              handleSkillsAdd={handleSkillsAdd}
+              onCreateOption={onCreateOption}
+              handleSubmit={handleSubmit}
+              onChangeField={onChangeField}
+              onChangeEducation={onChangeEducation}
+              onAddEducation={onAddEducation}
+              onRemoveEducation={onRemoveEducation}
+              onChangeExperience={onChangeExperience}
+              onAddExperience={onAddExperience}
+              onRemoveExperience={onRemoveExperience}
+            />
+          </Col>
+          <Col md={6} style={{ marginTop: "60px" }}>
+            <Button
+              variant="primary"
+              style={{ float: "right", margin: "20px" }}
+              onClick={onClickView}
+            >
+              VIEW RESUME
+            </Button>
+            <ResumeTemplate resumeData={resumeData} />
+          </Col>
+        </Row>
+      )}
+      {viewType === "RESUME_VIEW" && (
+        <>
+          <Row>
+            <Col md={{ span: 4, offset: 8 }}>
+              <Button
+                variant="primary"
+                style={{ float: "right", margin: "20px" }}
+                onClick={() => setViewType("EDIT_VIEW")}
+              >
+                EDIT RESUME
+              </Button>
+            </Col>
+          </Row>
+          <ResumeTemplate resumeData={resumeData} />
+        </>
+      )}
+    </>
   );
 };
 

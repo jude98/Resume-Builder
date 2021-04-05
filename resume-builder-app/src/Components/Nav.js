@@ -51,7 +51,7 @@ const Navigation = () => {
           </LinkStyled>
           <LinkStyled>
             <NavLink
-              to="/view"
+              to="/view-resume"
               activeClassName="active"
               style={{ textDecoration: "none" }}
             >
